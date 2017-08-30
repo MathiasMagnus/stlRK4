@@ -5,10 +5,24 @@
 #include <complex>
 #include <iostream>
 
+/// <note>If PDE::StateVector<...> has std::complex in it and
+/// std::complex::value_type does not match PDE::RK4::Solver::floating_type,
+/// that means that mixed type scalar * complex operations will manifest
+/// inside the RK4 solver (resulting in criptic template error messages).
+/// To account for such scenarios, the user has to provide the compiler an
+/// operator it can use in such cases. (It is not evident which operand should
+/// be promoted, however generally the scalar might be a good choice.</note>
+///
+template <typename S, typename C>
+auto operator*(const S& s, const std::complex<C>& c)
+{
+    return static_cast<typename std::complex<C>::value_type>(s) * c;
+}
+
 enum Component : int
 {
     Mass = 0,
-    Phase = 1
+    Phase
 };
 
 int main()
@@ -20,7 +34,7 @@ int main()
 
     using state = PDE::StateVector<mass_type, phase_type>;
     using solver = PDE::RK4::Solver<solver_internal, state>;
-
+    
     // Model params (read from config file if you want)
     mass_type eq1_contirb1_param1 = 0.99,
               eq1_contirb2_param1 = 1.01,
@@ -28,7 +42,7 @@ int main()
     phase_type::value_type eq2_contrib1_param1 = 0.5f,
                            eq2_contrib2_param1 = 0.1f,
                            eq2_contrib2_param2 = 0.001f;
-    solver_internal dt = 0.001;
+    solver_internal dt = 0.1;
 
     // Model switches (Compile time constants)
     constexpr bool use_eq1_contrib1 = true,
@@ -59,7 +73,7 @@ int main()
         return some_other_derived * phase_type{ phase.real(), phase.imag() * eq2_contrib2_param2 };
     };
 
-    // Assembline equations from contributions
+    // Assembling equations from contributions
     
     // It is expected, that sensible C++11/14 optimizers eliminate branching on ( true ? val1 : val2 )
     // type expressions at compile time. Even more sensible optimizers should change (val + 0) and
@@ -90,11 +104,11 @@ int main()
                                      eq2(rhs.get<Phase>()) );
     };
 
-    for (solver_internal t = 0; t < 100; t += dt)
+    for (solver_internal t = 0; t < 10; t += dt)
     {
         rk4.iterate(dt);
         
-        std::cout << t << std::endl;
+        std::cout << t << "\t" << rk4.lhs().get<Mass>() << "\t" << rk4.lhs().get<Phase>() << std::endl;
     }
 
     return 0;

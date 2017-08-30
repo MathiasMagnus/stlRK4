@@ -690,7 +690,7 @@ template <typename... T> auto operator-(const PDE::StateVector<T...>& u, const P
 template <typename Scalar, typename E, typename... T> auto operator*(const Scalar alpha, const PDE::ConstExpression<E, T...>& v) { return PDE::map(v, [=](const auto& val) { return alpha * val; }); }
 template <typename Scalar, typename E, typename... T> auto operator*(const PDE::ConstExpression<E, T...>& v, const Scalar alpha) { return PDE::map(v, [=](const auto& val) { return alpha * val; }); }
 template <typename Scalar, typename... T> auto operator*(const Scalar alpha, const PDE::StateVector<T...>& v) { return PDE::map(PDE::ConstView<T...>(v), [=](const auto& val) { return alpha * val; }); }
-template <typename Scalar, typename... T> auto operator*(const PDE::StateVector<T...>& v, const Scalar alpha) { return PDE::map(PDE::ConstView<T...>(v), [=](const auto& val) { return alpha * val; }); }
+template <typename Scalar, typename... T> auto operator*(const PDE::StateVector<T...>& v, const Scalar alpha) { return PDE::map(PDE::ConstView<T...>(v), [=](const auto& val) { return val * alpha; }); }
 
 template <typename Scalar, typename E, typename... T> auto operator/(const PDE::ConstExpression<E, T...>& v, const Scalar alpha) { return PDE::map(v, [=](const auto& val) { return val / alpha; }); }
 template <typename Scalar, typename... T> auto operator/(const PDE::StateVector<T...>& v, const Scalar alpha) { return PDE::map(PDE::ConstView<T...>(v), [=](const auto& val) { return val / alpha; }); }

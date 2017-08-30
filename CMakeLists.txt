@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.0.0)
 
-project(RK4_Test VERSION 0.0.0
-                 LANGUAGES CXX)
+project(RK4_Test LANGUAGES CXX)
 
 add_executable(${PROJECT_NAME} inc/PDE.hpp
                                src/Main.cpp)
